@@ -3,6 +3,10 @@ function wtfjs(){};
 wtfjs.Services = function(){};
 wtfjs.Services._services = {};
 wtfjs.Services.register = function(service){
+	service.__listeners = [];
+	service.notify = function(){
+		this.__listeners.forEach(function(cb){cb.event_triggered(this);});
+	}
 	wtfjs.Services._services[service.__proto__.constructor.name] = service;
 	wtfjs.Component._load_them();
 }
@@ -68,8 +72,12 @@ wtfjs.Component._load_them = function(){
 			}
 		}
 		//Put the component into loaded list
-
 		var tmp = new objectClass(args);
+		args.forEach(function(instance){
+			if (instance.constructor.name in wtfjs.Services._services){
+				instance.__listeners.push(tmp);
+			}
+		})
 		delete wtfjs.Component.__pending_components[key];
 		wtfjs.__components[key] = tmp;
 		tmp.__isloaded = false;
@@ -139,6 +147,14 @@ wtfjs.Component._load_them = function(){
 		}
 		tmpObj.singleton = tmp;
 		newlyLoaded = true;
+		tmp.refresh = function(){
+			if (this.__attached){
+					if (tmp.dom_id){
+						tmp.__attach();
+					}
+					tmp.__display();
+				}
+			}
 	});
 	if (newlyLoaded){
 		this._load_them();

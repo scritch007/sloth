@@ -46,6 +46,10 @@ wtfjs.Router.prototype.add_route = function(hashname, name, object, load_conditi
 
 wtfjs.Router.prototype.update = function(){
 	var route = this.__routes[window.location.hash];
+	if (undefined === route){
+		//The actual Route could no yet loaded.
+		return;
+	}
 	if (undefined !== route[2]){
 		var res = route[2]();
 		if (true !== res){
