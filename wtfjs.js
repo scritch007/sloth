@@ -1,11 +1,21 @@
 function wtfjs(){};
 
+
+/*
+* Service methods
+*/
 wtfjs.Services = function(){};
 wtfjs.Services._services = {};
 wtfjs.Services.register = function(service){
 	service.__listeners = [];
 	service.notify = function(){
-		this.__listeners.forEach(function(cb){cb.event_triggered(this);});
+		this.__listeners.forEach(function(cb){
+			if (undefined === cb.event_triggered){
+				console.error(cb.constructor.name + " doesn't implement the event_triggered callback");
+			}else{
+				cb.event_triggered(this);
+			}
+		});
 	}
 	wtfjs.Services._services[service.__proto__.constructor.name] = service;
 	wtfjs.Component._load_them();
@@ -14,9 +24,17 @@ wtfjs.Services.get = function(service_name){
 	return wtfjs.Services._services[service_name];
 }
 
+/*
+* Component methods
+*/
 wtfjs.Component = function(){};
+
 wtfjs.__components = {};
 wtfjs.Component.__pending_components = {};
+
+/*
+* Method that will register all the components.
+*/
 wtfjs.Component.register = function(objectClass, deps){
 	var tmpObj = {classObject: objectClass, deps: deps, then: function(callback){
 		this.callback = callback;
@@ -29,6 +47,10 @@ wtfjs.Component.register = function(objectClass, deps){
 	wtfjs.Component._load_them();
 	return tmpObj;
 }
+
+/*
+* Call all the components now that all the DOM elements were loaded
+*/
 wtfjs.Component.domReady = function(){
 	//Notify all the elements that dom is now ready
 	for (var key in wtfjs.__components){
@@ -40,6 +62,10 @@ wtfjs.Component.domReady = function(){
 	}
 }
 
+
+/*
+* Instantiate the components that have their deps loaded
+*/
 wtfjs.Component._load_them = function(){
 	var keys = [];
 	for(var key in wtfjs.Component.__pending_components){
@@ -71,13 +97,14 @@ wtfjs.Component._load_them = function(){
 				return;
 			}
 		}
-		//Put the component into loaded list
+		// Instantiate the component
 		var tmp = new objectClass(args);
 		args.forEach(function(instance){
 			if (instance.constructor.name in wtfjs.Services._services){
 				instance.__listeners.push(tmp);
 			}
 		})
+		// Remove it from the list.
 		delete wtfjs.Component.__pending_components[key];
 		wtfjs.__components[key] = tmp;
 		tmp.__isloaded = false;
@@ -90,11 +117,13 @@ wtfjs.Component._load_them = function(){
 			}
 			wtfjs.onDomReady(tmp.__dom, function(){
 				if(tmp.__dom.innerHTML == tmp.__template){
-					tmp.load();
+					tmp.render();
 				}
 			});
 			tmp.__display();
 		}
+
+		// Check if this is a component stuck to a dom_id
 		if (undefined !== tmp.dom_id){
 			tmp.__dom = document.getElementById(this.dom_id);
 			if (tmp.__dom){

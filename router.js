@@ -7,8 +7,8 @@ wtfjs.Router = function(){
 
 	wtfjs.onDomReady(this.__dom,function(){
 		var route = self.__routes[self.__current_route];
-    		if (undefined !== route[1].load){
-    			route[1].load(self.__dom);
+    		if (undefined !== route[1].render){
+    			route[1].render(self.__dom);
 		}
 	});
 	window.onhashchange = function(){
