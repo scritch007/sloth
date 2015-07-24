@@ -6,11 +6,11 @@
 	<form action="#">
   	  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label textfield-demo">
         <input class="mdl-textfield__input" type="text" id="menu-login-id" />
-        <label class="mdl-textfield__label" for="menu-login-id">Text...</label>
+        <label class="mdl-textfield__label" for="menu-login-id">Enter anything...</label>
       </div>
       <!-- Accent-colored raised button with ripple -->
       <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"   id="login_button">
-        Log In with Google
+        Log In
       </button>
     </form>
   </div>
