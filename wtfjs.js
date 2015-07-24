@@ -31,6 +31,11 @@ wtfjs.Component = function(){};
 
 wtfjs.__components = {};
 wtfjs.Component.__pending_components = {};
+wtfjs.Component._global_renderer = [];
+
+wtfjs.Component.register_render_callback = function(cb){
+	wtfjs.Component._global_renderer.push(cb);
+}
 
 /*
 * Method that will register all the components.
@@ -117,7 +122,11 @@ wtfjs.Component._load_them = function(){
 			}
 			wtfjs.onDomReady(tmp.__dom, function(){
 				if(tmp.__dom.innerHTML == tmp.__template){
+					console.log(tmp.constructor.name + " render");
 					tmp.render();
+					wtfjs.Component._global_renderer.forEach(function(cb){
+						cb();
+					});
 				}
 			});
 			tmp.__display();
@@ -134,37 +143,37 @@ wtfjs.Component._load_them = function(){
 		tmp.__load = function(){
 			if (!this.__isloaded){
 				var processStatus = function (response) {
-	    			// status "0" to handle local files fetching (e.g. Cordova/Phonegap etc.)
-	    			if (response.status === 200 || response.status === 0) {
-	    			    return response.text()
-	    			} else {
-	    			    return new Error(response.statusText);
-	    			}
+					// status "0" to handle local files fetching (e.g. Cordova/Phonegap etc.)
+					if (response.status === 200 || response.status === 0) {
+						return response.text()
+					} else {
+						return new Error(response.statusText);
+					}
 				};
 
 				fetch(tmp.template)
-			    .then(processStatus)
-			    // the following code added for example only
-			    .then(function(raw_html){
-			    	tmp.__template = raw_html;
-			    	tmp.__isloaded = true;
-			    	//Check that dom is ready before displaying
-			    	if (tmp.__attached){
-			    		if (tmp.dom_id){
-			    			tmp.__attach();
-			    		}
-			    		tmp.__display();
-			    	}
-			    })
-			    .catch();
+				.then(processStatus)
+				// the following code added for example only
+				.then(function(raw_html){
+					tmp.__template = raw_html;
+					tmp.__isloaded = true;
+					//Check that dom is ready before displaying
+					if (tmp.__attached){
+						if (tmp.dom_id){
+							tmp.__attach();
+						}
+						tmp.__display();
+					}
+				})
+				.catch();
 			}else{
-		    	//Check that dom is ready before displaying
-		    	if (tmp.__attached){
-		    		if (tmp.dom_id){
-		    			tmp.__attach();
-		    		}
-		    		tmp.__display();
-		    	}
+				//Check that dom is ready before displaying
+				if (tmp.__attached){
+					if (tmp.dom_id){
+						tmp.__attach();
+					}
+					tmp.__display();
+				}
 			}
 
 		}
@@ -188,4 +197,24 @@ wtfjs.Component._load_them = function(){
 	if (newlyLoaded){
 		this._load_them();
 	}
+}
+
+/***
+Super Observer
+***/
+
+wtfjs.onDomReady = function(object, callback){
+	var MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver;
+
+	var observer = new MutationObserver(function(mutations) {
+		mutations.forEach(function(mutation) {
+			callback();
+		});
+	});
+
+	observer.observe(object, {
+		attributes: true,
+		childList: true,
+		characterData: true
+	});
 }

@@ -7,8 +7,11 @@ wtfjs.Router = function(){
 
 	wtfjs.onDomReady(this.__dom,function(){
 		var route = self.__routes[self.__current_route];
-    		if (undefined !== route[1].render){
-    			route[1].render(self.__dom);
+			if (undefined !== route[1].render){
+				route[1].render(self.__dom);
+				wtfjs.Component._global_renderer.forEach(function(cb){
+					cb();
+				});
 		}
 	});
 	window.onhashchange = function(){
@@ -77,24 +80,4 @@ wtfjs.RouterConfig = function(routes){
 		__main_router.add_route.apply(__main_router, route);
 	});
 	return __main_router;
-}
-
-/***
-Super Observer
-***/
-
-wtfjs.onDomReady = function(object, callback){
-	var MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver;
-
-  	var observer = new MutationObserver(function(mutations) {
-    	mutations.forEach(function(mutation) {
-    		callback();
-    	});
-  	});
-
-  	observer.observe(object, {
-    	attributes: true,
-    	childList: true,
-    	characterData: true
-  	});
 }
