@@ -1,0 +1,17 @@
+<section class="section--center mdl-grid mdl-grid--no-spacing">
+  <div class="mdl-cell mdl-cell--12-col">
+
+	<!-- Textfield with Floating Label -->
+	Administration server requires to be Authenticated.
+	<form action="#">
+  	  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label textfield-demo">
+        <input class="mdl-textfield__input" type="text" id="menu-login-id" />
+        <label class="mdl-textfield__label" for="menu-login-id">Text...</label>
+      </div>
+      <!-- Accent-colored raised button with ripple -->
+      <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"   id="login_button">
+        Log In with Google
+      </button>
+    </form>
+  </div>
+</section>

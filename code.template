@@ -1,0 +1,100 @@
+<pre>
+var myApp = null;
+function init(){
+	myApp = new App();
+}
+
+function App(){
+	var self = this;
+	wtfjs.RouterConfig([
+		["#/home", "home", Home, requires_loggedin],
+		["#/code", "code", Code, requires_loggedin],
+		["#/login", "login", Login]
+	]).start();
+	wtfjs.Component.domReady();
+}
+
+function MenuComponent(deps){
+	this.template = "menu.template";
+	this.dom_id = "menu_id";
+	this.loginService = deps[0];
+}
+
+MenuComponent.prototype.event_triggered = function(dep){
+	this.refresh();
+}
+
+/*
+* Load method is called when the template has been rendered
+*/
+MenuComponent.prototype.render = function(){
+	var classname = "";
+	if (this.loginService.isLoggedIn()){
+		classname = ".app-not-logged-in";
+	}else{
+		classname = ".app-logged-in";
+	}
+	var node = this.__dom.querySelector(classname);
+	node.remove();
+}
+
+wtfjs.Component.register(MenuComponent, ["LoginService"])
+.then(function(){
+	this.__load();
+});
+
+function Home(){
+	this.template = "home.template";
+}
+Home.prototype.render = function(parentDomElement){
+	console.log("Loading home....");
+}
+
+function Code(){
+	this.template = "code.template";
+}
+
+
+/*
+* Login methods
+*/
+function Login(){
+	this.template = "login.template";
+}
+Login.prototype.render = function(parentDomElement){
+	parentDomElement.querySelector("button").addEventListener("click", function(){
+		//Todo remove this when needed.
+		wtfjs.Services.get(LoginService.name).updateLogin("This is it...");
+		LoginService.isLoggedIn = true;
+		wtfjs.Router.navigate("home");
+	});
+}
+
+function requires_loggedin(){
+	return localStorage.getItem("jwt")==null?"#/login":true;
+}
+
+/***
+LoginService definition
+***/
+function LoginService(){
+	var self = this;
+	//Because of the creation event for storage that isn't triggered, force the value to "" for th jwt
+	var jwt = localStorage.jwt;
+	window.addEventListener("storage", function(storageEvent){
+		console.log(storageEvent);
+		if (storageEvent.key === "jwt"){
+			self.notify();
+		}
+	});
+}
+LoginService.name = "LoginService";
+LoginService.prototype.isLoggedIn = function(){return null != localStorage.getItem("jwt")}
+LoginService.prototype.updateLogin = function(value){
+	localStorage.setItem("jwt", value);
+	this.notify();
+}
+
+//Register the LoginService
+wtfjs.Services.register(new LoginService());
+</pre>
