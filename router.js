@@ -3,6 +3,7 @@ wtfjs.Router = function(){
 	this.__routes = {};
 	this.__current_route = window.location.hash;
 	this.__dom = document.getElementById("router_id");
+	this.__default_route = null;
 	var self = this;
 
 	wtfjs.onDomReady(this.__dom,function(){
@@ -23,15 +24,22 @@ wtfjs.Router = function(){
 wtfjs.Router.prototype.start = function(){
 	// This should be called by the init to start the router;
 
-	if (window.location.hash){
+	if (window.location.hash && window.location.hash != ""){
 		this.__current_route = window.location.hash;
 	}else{
 
+		window.location.hash = this.__default_route;
 	}
 }
 
 wtfjs.Router.prototype.add_route = function(hashname, name, object, load_conditions){
 	var self = this;
+	if (object.default_route){
+		if (null != this.__default_route){
+			console.error("Default route already set to " + this.__default_route + " forcing to " + hashname);
+		}
+		this.__default_route = hashname;
+	}
 	wtfjs.Component.register(object)
 	.then(function(){
 		this.__display = function(){
