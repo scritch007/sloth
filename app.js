@@ -43,7 +43,7 @@ MenuComponent.prototype.render = function(){
 	node.remove();
 
 	node = this.__dom.querySelector(".menu-user-logout");
-	if (this.loginService.isLoggedIn){
+	if (this.loginService.isLoggedIn()){
 		node.addEventListener("click", function(){
 			this.loginService.logout();
 		}.bind(this));
