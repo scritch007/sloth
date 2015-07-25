@@ -1,4 +1,5 @@
-<pre>
+<pre class="language-markup">
+<code class="language-marlup">
 var myApp = null;
 function init(){
 	myApp = new App();
@@ -11,6 +12,10 @@ function App(){
 		["#/code", "code", Code, requires_loggedin],
 		["#/login", "login", Login]
 	]).start();
+	wtfjs.Component.register_render_callback(function(){
+		console.log("global called");
+		componentHandler.upgradeAllRegistered();
+	})
 	wtfjs.Component.domReady();
 }
 
@@ -30,12 +35,24 @@ MenuComponent.prototype.event_triggered = function(dep){
 MenuComponent.prototype.render = function(){
 	var classname = "";
 	if (this.loginService.isLoggedIn()){
+		var tmp2 = this.__dom.querySelector("#menu-user-name");
+		tmp2.innerHTML = this.loginService.getUserName();
 		classname = ".app-not-logged-in";
 	}else{
 		classname = ".app-logged-in";
 	}
 	var node = this.__dom.querySelector(classname);
 	node.remove();
+
+	node = this.__dom.querySelector(".menu-user-logout");
+	if (this.loginService.isLoggedIn()){
+		node.addEventListener("click", function(){
+			this.loginService.logout();
+		}.bind(this));
+	}else{
+		node.remove();
+	}
+
 }
 
 wtfjs.Component.register(MenuComponent, ["LoginService"])
@@ -45,7 +62,9 @@ wtfjs.Component.register(MenuComponent, ["LoginService"])
 
 function Home(){
 	this.template = "home.template";
+
 }
+Home.default_route = true;
 Home.prototype.render = function(parentDomElement){
 	console.log("Loading home....");
 }
@@ -64,7 +83,7 @@ function Login(){
 Login.prototype.render = function(parentDomElement){
 	parentDomElement.querySelector("button").addEventListener("click", function(){
 		//Todo remove this when needed.
-		wtfjs.Services.get(LoginService.name).updateLogin("This is it...");
+		wtfjs.Services.get(LoginService.name).updateLogin(parentDomElement.querySelector("#menu-login-id").value);
 		LoginService.isLoggedIn = true;
 		wtfjs.Router.navigate("home");
 	});
@@ -89,12 +108,18 @@ function LoginService(){
 	});
 }
 LoginService.name = "LoginService";
-LoginService.prototype.isLoggedIn = function(){return null != localStorage.getItem("jwt")}
+LoginService.prototype.isLoggedIn = function(){return null != localStorage.getItem("jwt")};
+LoginService.prototype.getUserName = function(){return localStorage.getItem("jwt")};
 LoginService.prototype.updateLogin = function(value){
 	localStorage.setItem("jwt", value);
+	this.notify();
+}
+LoginService.prototype.logout = function(){
+	localStorage.removeItem("jwt");
 	this.notify();
 }
 
 //Register the LoginService
 wtfjs.Services.register(new LoginService());
+</code>
 </pre>
