@@ -60,7 +60,9 @@ wtfjs.Component.register(MenuComponent, ["LoginService"])
 
 function Home(){
 	this.template = "home.template";
+
 }
+Home.default_route = true;
 Home.prototype.render = function(parentDomElement){
 	console.log("Loading home....");
 }
