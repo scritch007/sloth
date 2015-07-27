@@ -5,14 +5,14 @@ module.exports = function(grunt) {
     pkg: grunt.file.readJSON('package.json'),
     concat: {
       dist: {
-        src: ['src/wtfjs.js','src/router.js'],
-        dest: 'dist/wtfjs.js',
+        src: ['src/sloth.js','src/router.js'],
+        dest: 'dist/sloth.js',
       }
     },
     uglify: {
       dist: {
         files: {
-          'dist/wtfjs.min.js': ['dist/wtfjs.js']
+          'dist/sloth.min.js': ['dist/sloth.js']
         }
       }
     }

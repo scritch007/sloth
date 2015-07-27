@@ -1,12 +1,12 @@
-function wtfjs(){};
+function sloth(){};
 
 
 /*
 * Service methods
 */
-wtfjs.Services = function(){};
-wtfjs.Services._services = {};
-wtfjs.Services.register = function(service){
+sloth.Services = function(){};
+sloth.Services._services = {};
+sloth.Services.register = function(service){
 	service.__listeners = [];
 	service.notify = function(){
 		this.__listeners.forEach(function(cb){
@@ -17,30 +17,30 @@ wtfjs.Services.register = function(service){
 			}
 		});
 	}
-	wtfjs.Services._services[service.__proto__.constructor.name] = service;
-	wtfjs.Component._load_them();
+	sloth.Services._services[service.__proto__.constructor.name] = service;
+	sloth.Component._load_them();
 }
-wtfjs.Services.get = function(service_name){
-	return wtfjs.Services._services[service_name];
+sloth.Services.get = function(service_name){
+	return sloth.Services._services[service_name];
 }
 
 /*
 * Component methods
 */
-wtfjs.Component = function(){};
+sloth.Component = function(){};
 
-wtfjs.__components = {};
-wtfjs.Component.__pending_components = {};
-wtfjs.Component._global_renderer = [];
+sloth.__components = {};
+sloth.Component.__pending_components = {};
+sloth.Component._global_renderer = [];
 
-wtfjs.Component.register_render_callback = function(cb){
-	wtfjs.Component._global_renderer.push(cb);
+sloth.Component.register_render_callback = function(cb){
+	sloth.Component._global_renderer.push(cb);
 }
 
 /*
 * Method that will register all the components.
 */
-wtfjs.Component.register = function(objectClass, deps){
+sloth.Component.register = function(objectClass, deps){
 	var tmpObj = {classObject: objectClass, deps: deps, then: function(callback){
 		this.callback = callback;
 		if (this.singleton){
@@ -48,18 +48,18 @@ wtfjs.Component.register = function(objectClass, deps){
 			this.callback.bind(this.singleton)();
 		}
 	}, singleton: null};
-	wtfjs.Component.__pending_components[objectClass.name] = tmpObj;
-	wtfjs.Component._load_them();
+	sloth.Component.__pending_components[objectClass.name] = tmpObj;
+	sloth.Component._load_them();
 	return tmpObj;
 }
 
 /*
 * Call all the components now that all the DOM elements were loaded
 */
-wtfjs.Component.domReady = function(){
+sloth.Component.domReady = function(){
 	//Notify all the elements that dom is now ready
-	for (var key in wtfjs.__components){
-		var tmp = wtfjs.__components[key];
+	for (var key in sloth.__components){
+		var tmp = sloth.__components[key];
 		if (tmp.__isloaded && !tmp.__attached && tmp.dom_id){
 			tmp.__attach();
 		}
@@ -71,21 +71,21 @@ wtfjs.Component.domReady = function(){
 /*
 * Instantiate the components that have their deps loaded
 */
-wtfjs.Component._load_them = function(){
+sloth.Component._load_them = function(){
 	var keys = [];
-	for(var key in wtfjs.Component.__pending_components){
+	for(var key in sloth.Component.__pending_components){
 		keys.push(key);
 	}
 	var newlyLoaded = false;
 	keys.forEach(function(key){
-		var tmpObj = wtfjs.Component.__pending_components[key];
+		var tmpObj = sloth.Component.__pending_components[key];
 		var objectClass = tmpObj.classObject;
 		var args = [];
 		if (undefined !== tmpObj.deps){
 			var alldeploaded = true;
 			for(var i=0; i < tmpObj.deps.length; i++){
-				var lcomp = wtfjs.__components[tmpObj.deps[i]];
-				var lservice = wtfjs.Services._services[tmpObj.deps[i]];
+				var lcomp = sloth.__components[tmpObj.deps[i]];
+				var lservice = sloth.Services._services[tmpObj.deps[i]];
 				if (undefined == lcomp &&
 					undefined == lservice){
 					alldeploaded = false;
@@ -105,13 +105,13 @@ wtfjs.Component._load_them = function(){
 		// Instantiate the component
 		var tmp = new objectClass(args);
 		args.forEach(function(instance){
-			if (instance.constructor.name in wtfjs.Services._services){
+			if (instance.constructor.name in sloth.Services._services){
 				instance.__listeners.push(tmp);
 			}
 		})
 		// Remove it from the list.
-		delete wtfjs.Component.__pending_components[key];
-		wtfjs.__components[key] = tmp;
+		delete sloth.Component.__pending_components[key];
+		sloth.__components[key] = tmp;
 		tmp.__isloaded = false;
 		tmp.__attached = false;
 		tmp.__attach = function(){
@@ -120,11 +120,11 @@ wtfjs.Component._load_them = function(){
 				console.log("Attaching to dom");
 				tmp.__dom.innerHTML = tmp.__template;
 			}
-			wtfjs.onDomReady(tmp.__dom, function(){
+			sloth.onDomReady(tmp.__dom, function(){
 				if(tmp.__dom.innerHTML == tmp.__template){
 					console.log(tmp.constructor.name + " render");
 					tmp.render();
-					wtfjs.Component._global_renderer.forEach(function(cb){
+					sloth.Component._global_renderer.forEach(function(cb){
 						cb();
 					});
 				}
@@ -203,7 +203,7 @@ wtfjs.Component._load_them = function(){
 Super Observer
 ***/
 
-wtfjs.onDomReady = function(object, callback){
+sloth.onDomReady = function(object, callback){
 	var MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver;
 
 	var observer = new MutationObserver(function(mutations) {

@@ -1,16 +1,16 @@
 
-wtfjs.Router = function(){
+sloth.Router = function(){
 	this.__routes = {};
 	this.__current_route = window.location.hash;
 	this.__dom = document.getElementById("router_id");
 	this.__default_route = null;
 	var self = this;
 
-	wtfjs.onDomReady(this.__dom,function(){
+	sloth.onDomReady(this.__dom,function(){
 		var route = self.__routes[self.__current_route];
 			if (undefined !== route[1].render){
 				route[1].render(self.__dom);
-				wtfjs.Component._global_renderer.forEach(function(cb){
+				sloth.Component._global_renderer.forEach(function(cb){
 					cb();
 				});
 		}
@@ -21,7 +21,7 @@ wtfjs.Router = function(){
 	};
 }
 
-wtfjs.Router.prototype.start = function(){
+sloth.Router.prototype.start = function(){
 	// This should be called by the init to start the router;
 
 	if (window.location.hash && window.location.hash != ""){
@@ -32,7 +32,7 @@ wtfjs.Router.prototype.start = function(){
 	}
 }
 
-wtfjs.Router.prototype.add_route = function(hashname, name, object, load_conditions){
+sloth.Router.prototype.add_route = function(hashname, name, object, load_conditions){
 	var self = this;
 	if (object.default_route){
 		if (null != this.__default_route){
@@ -40,7 +40,7 @@ wtfjs.Router.prototype.add_route = function(hashname, name, object, load_conditi
 		}
 		this.__default_route = hashname;
 	}
-	wtfjs.Component.register(object)
+	sloth.Component.register(object)
 	.then(function(){
 		this.__display = function(){
 			self.__dom.innerHTML = this.__template;
@@ -55,7 +55,7 @@ wtfjs.Router.prototype.add_route = function(hashname, name, object, load_conditi
 	});
 }
 
-wtfjs.Router.prototype.update = function(){
+sloth.Router.prototype.update = function(){
 	var route = this.__routes[window.location.hash];
 	if (undefined === route){
 		//The actual Route could no yet loaded.
@@ -71,7 +71,7 @@ wtfjs.Router.prototype.update = function(){
 	route[1].__load();
 }
 
-wtfjs.Router.navigate = function(name){
+sloth.Router.navigate = function(name){
 	for (var key in __main_router.__routes){
 		var route = __main_router.__routes[key];
 		if (route[0] == name){
@@ -82,8 +82,8 @@ wtfjs.Router.navigate = function(name){
 }
 var __main_router = null;
 
-wtfjs.RouterConfig = function(routes){
-	__main_router = new wtfjs.Router();
+sloth.RouterConfig = function(routes){
+	__main_router = new sloth.Router();
 	routes.forEach(function(route){
 		__main_router.add_route.apply(__main_router, route);
 	});
