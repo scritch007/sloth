@@ -5,16 +5,16 @@ function init(){
 
 function App(){
 	var self = this;
-	wtfjs.RouterConfig([
+	sloth.RouterConfig([
 		["#/home", "home", Home, requires_loggedin],
 		["#/code", "code", Code, requires_loggedin],
 		["#/login", "login", Login]
 	]).start();
-	wtfjs.Component.register_render_callback(function(){
+	sloth.Component.register_render_callback(function(){
 		console.log("global called");
 		componentHandler.upgradeAllRegistered();
 	})
-	wtfjs.Component.domReady();
+	sloth.Component.domReady();
 }
 
 function MenuComponent(deps){
@@ -53,7 +53,7 @@ MenuComponent.prototype.render = function(){
 
 }
 
-wtfjs.Component.register(MenuComponent, ["LoginService"])
+sloth.Component.register(MenuComponent, ["LoginService"])
 .then(function(){
 	this.__load();
 });
@@ -81,9 +81,9 @@ function Login(){
 Login.prototype.render = function(parentDomElement){
 	parentDomElement.querySelector("button").addEventListener("click", function(){
 		//Todo remove this when needed.
-		wtfjs.Services.get(LoginService.name).updateLogin(parentDomElement.querySelector("#menu-login-id").value);
+		sloth.Services.get(LoginService.name).updateLogin(parentDomElement.querySelector("#menu-login-id").value);
 		LoginService.isLoggedIn = true;
-		wtfjs.Router.navigate("home");
+		sloth.Router.navigate("home");
 	});
 }
 
@@ -118,4 +118,4 @@ LoginService.prototype.logout = function(){
 }
 
 //Register the LoginService
-wtfjs.Services.register(new LoginService());
+sloth.Services.register(new LoginService());
