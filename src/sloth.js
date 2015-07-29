@@ -112,18 +112,23 @@ sloth.Component._load_them = function(){
 		// Remove it from the list.
 		delete sloth.Component.__pending_components[key];
 		sloth.__components[key] = tmp;
-		tmp.__isloaded = false;
+		tmp.__isloaded = tmp.template?true:false;
 		tmp.__attached = false;
+		tmp.__torender = false;
+		tmp.__display = function(){
+			console.log("Attaching to dom");
+			tmp.__torender = true;
+			tmp.__dom.innerHTML = tmp.template;
+		}
 		tmp.__attach = function(){
 			tmp.__dom = document.getElementById(this.dom_id);
-			tmp.__display = function(){
-				console.log("Attaching to dom");
-				tmp.__dom.innerHTML = tmp.__template;
-			}
+
 			sloth.onDomReady(tmp.__dom, function(){
-				if(tmp.__dom.innerHTML == tmp.__template){
+				if(tmp.__torender){
 					console.log(tmp.constructor.name + " render");
-					tmp.render();
+					tmp.__torender = false;
+					if (undefined !== tmp.render)
+						tmp.render(tmp.__dom);
 					sloth.Component._global_renderer.forEach(function(cb){
 						cb();
 					});
@@ -140,6 +145,14 @@ sloth.Component._load_them = function(){
 				tmp.__attached = true;
 			}
 		}
+		tmp.__loaded = function(){
+			if (tmp.__attached){
+				if (tmp.dom_id){
+					tmp.__attach();
+				}
+				tmp.__display();
+			}
+		}
 		tmp.__load = function(){
 			if (!this.__isloaded){
 				var processStatus = function (response) {
@@ -151,29 +164,19 @@ sloth.Component._load_them = function(){
 					}
 				};
 
-				fetch(tmp.template)
+				fetch(tmp.templateUrl)
 				.then(processStatus)
 				// the following code added for example only
 				.then(function(raw_html){
-					tmp.__template = raw_html;
+					tmp.template = raw_html;
 					tmp.__isloaded = true;
 					//Check that dom is ready before displaying
-					if (tmp.__attached){
-						if (tmp.dom_id){
-							tmp.__attach();
-						}
-						tmp.__display();
-					}
+					tmp.__loaded();
 				})
 				.catch();
 			}else{
 				//Check that dom is ready before displaying
-				if (tmp.__attached){
-					if (tmp.dom_id){
-						tmp.__attach();
-					}
-					tmp.__display();
-				}
+				tmp.__loaded();
 			}
 
 		}

@@ -8,11 +8,14 @@ sloth.Router = function(){
 
 	sloth.onDomReady(this.__dom,function(){
 		var route = self.__routes[self.__current_route];
-			if (undefined !== route[1].render){
+		if (route[1].__torender){
+			route[1].__torender = false;
+			if (undefined !== route[1].render ){
 				route[1].render(self.__dom);
 				sloth.Component._global_renderer.forEach(function(cb){
 					cb();
 				});
+			}
 		}
 	});
 	window.onhashchange = function(){
@@ -42,9 +45,6 @@ sloth.Router.prototype.add_route = function(hashname, name, object, load_conditi
 	}
 	sloth.Component.register(object)
 	.then(function(){
-		this.__display = function(){
-			self.__dom.innerHTML = this.__template;
-		}
 		self.__routes[hashname] = [name, this, load_conditions];
 		if (null == self.__current_route){
 			self.__current_route = hashname;
@@ -56,7 +56,11 @@ sloth.Router.prototype.add_route = function(hashname, name, object, load_conditi
 }
 
 sloth.Router.prototype.update = function(){
-	var route = this.__routes[window.location.hash];
+	var route = this.__routes[this.__current_route];
+	//Clean previous component dom_id
+	route[1].dom_id = null;
+	route = this.__routes[window.location.hash];
+	route[1].dom_id = this.__dom.id;
 	if (undefined === route){
 		//The actual Route could no yet loaded.
 		return;
