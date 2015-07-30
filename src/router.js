@@ -9,13 +9,13 @@ sloth.Router = function(){
 	sloth.onDomReady(this.__dom,function(){
 		var route = self.__routes[self.__current_route];
 		if (route[1].__torender){
-			route[1].__torender = false;
 			if (undefined !== route[1].render ){
 				route[1].render(self.__dom);
 				sloth.Component._global_renderer.forEach(function(cb){
 					cb();
 				});
 			}
+			route[1].__torender = false;
 		}
 	});
 	window.onhashchange = function(){
@@ -35,7 +35,7 @@ sloth.Router.prototype.start = function(){
 	}
 }
 
-sloth.Router.prototype.add_route = function(hashname, name, object, load_conditions){
+sloth.Router.prototype.add_route = function(hashname, name, object, load_conditions, deps){
 	var self = this;
 	if (object.default_route){
 		if (null != this.__default_route){
@@ -43,7 +43,7 @@ sloth.Router.prototype.add_route = function(hashname, name, object, load_conditi
 		}
 		this.__default_route = hashname;
 	}
-	sloth.Component.register(object)
+	sloth.Component.register(object, deps)
 	.then(function(){
 		self.__routes[hashname] = [name, this, load_conditions];
 		if (null == self.__current_route){
