@@ -68,6 +68,19 @@ Home.prototype.render = function(parentDomElement){
 
 function Code(){}
 Code.templateUrl = "templates/code.html";
+Code.prototype.render = function(parentDomElement){
+	sloth.Component.init(AppCode).then(function(obj){
+		obj.attach(parentDomElement.querySelector("code"));
+	});
+}
+
+
+function AppCode(){};
+AppCode.templateUrl = "app.js"
+AppCode.prototype.render = function(parentDomElement){
+}
+
+sloth.Component.register(AppCode);
 
 /*
 * Login methods
