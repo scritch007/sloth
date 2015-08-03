@@ -92,14 +92,47 @@ function requires_loggedin(){
 */
 function Blog(blogService){
 	this.blogService = blogService;
+	this.list_all = true;
 }
-Blog.template = '<button class="blog_new_post mdl-button mdl-js-ripple-effect mdl-js-button mdl-button--fab mdl-color--accent" data-upgraded=",MaterialButton,MaterialRipple"><i class="material-icons mdl-color-text--white">add circle</i><span class="mdl-button__ripple-container"><span class="mdl-ripple is-animating" style="width: 160.391918985787px; height: 160.391918985787px; transform: translate(-50%, -50%) translate(28px, 39px);"></span></span></button>\
-	<div class="blog_entries"></div>"';
+Blog.templateUrl = "templates/blog.html";
 
 Blog.prototype.render = function(parentDomElement){
-	parentDomElement.querySelector(".blog_new_post").addEventListener("click", function(){
-		console.log("Need to add a new blog post");
+	var self = this;
+	var send_post_button = parentDomElement.querySelector(".send_new_post");
+	var new_blog_button = parentDomElement.querySelector(".blog_new_post")
+
+	function toggleMe(){
+		if (self.list_all){
+			console.log("Need to add a new blog post");
+			parentDomElement.querySelector(".blog_entries").style.display = 'none';
+			parentDomElement.querySelector(".new_post").style.display = '';
+			new_blog_button.querySelector("i").innerHTML = "remove circle";
+			send_post_button.style.display = '';
+		}else{
+			console.log("Showing all");
+			parentDomElement.querySelector(".blog_entries").style.display = '';
+			parentDomElement.querySelector(".new_post").style.display = 'none';
+			new_blog_button.querySelector("i").innerHTML = "add circle";
+			send_post_button.style.display = 'none'
+		}
+		self.list_all = !self.list_all;
+	}
+	new_blog_button.addEventListener("click", function(){
+		toggleMe();
 	});
+
+	send_post_button.addEventListener("click", function(){
+		var t = document.getElementById("post-title-id");
+		var d = document.getElementById("post-description-id");
+		self.blogService.addPost({
+			title: t.value,
+			description: d.value
+		});
+		t.value = "";
+		d.value = "";
+		toggleMe();
+	})
+
 	//Now let's had some posts from the service
 	this.blogService.getPosts().then(function(posts){console.log("Got those posts")});
 }
@@ -109,6 +142,10 @@ Blog.prototype.event_triggered = function(dep){
 	* Now lets handle those post information
 	*/
 	var entries = this.__dom.querySelector(".blog_entries");
+	while (entries.firstChild) {
+	    entries.removeChild(entries.firstChild);
+	}
+
 	dep.posts.forEach(function(post){
 		sloth.Component.init(Post, post).then(function(obj){
 			console.log("appending " + post);
@@ -155,30 +192,42 @@ LoginService.prototype.logout = function(){
 //Register the LoginService
 sloth.Services.register(new LoginService());
 
-function BlogService(){this.posts = [];};
+function BlogService(){this.posts = []; this.retrieved = false;};
 
 BlogService.prototype.getPosts = function(){
 	var self = this;
 	var b = Promise.defer();
-	var processStatus = function (response) {
-		// status "0" to handle local files fetching (e.g. Cordova/Phonegap etc.)
-		if (response.status === 200 || response.status === 0) {
-			return response.json()
-		} else {
-			return new Error(response.statusText);
-		}
-	};
 
-	fetch("posts.json")
-	.then(processStatus)
-	// the following code added for example only
-	.then(function(json){
-		b.resolve(json);
-		self.posts = json;
-		self.notify();
-	})
-	.catch(function(){b.reject()});
+	if (self.retrieved){
+		b.resolve(self.posts);
+	}else{
+
+		var processStatus = function (response) {
+			// status "0" to handle local files fetching (e.g. Cordova/Phonegap etc.)
+			if (response.status === 200 || response.status === 0) {
+				return response.json()
+			} else {
+				return new Error(response.statusText);
+			}
+		};
+
+		fetch("posts.json")
+		.then(processStatus)
+		// the following code added for example only
+		.then(function(json){
+			b.resolve(json);
+			self.posts = json;
+			self.retrieved = true;
+			self.notify();
+		})
+		.catch(function(){b.reject()});
+	}
 	return b.promise;
+}
+
+BlogService.prototype.addPost = function(post){
+	this.posts.push(post);
+	this.notify();
 }
 
 sloth.Services.register(new BlogService());

@@ -1,0 +1,37 @@
+<style>
+.blog_new_post{
+	position: absolute;
+	right: 100px;
+	top: 100px;
+}
+
+.send_new_post{
+	position: absolute;
+	right: 100px;
+	top: 160px;
+}
+
+.new_blog_form{
+	display: block;
+}
+.new_blog_form .mdl-textfield{
+	display:block;
+}
+</style>
+
+<button class="blog_new_post mdl-button mdl-js-ripple-effect mdl-js-button mdl-button--fab mdl-color--accent" data-upgraded=",MaterialButton,MaterialRipple"><i class="material-icons mdl-color-text--white">add circle</i><span class="mdl-button__ripple-container"><span class="mdl-ripple is-animating" style="width: 160.391918985787px; height: 160.391918985787px; transform: translate(-50%, -50%) translate(28px, 39px);"></span></span></button>
+<button class="send_new_post mdl-button mdl-js-ripple-effect mdl-js-button mdl-button--fab mdl-color--colored" data-upgraded=",MaterialButton,MaterialRipple" style="display:none"><i class="material-icons mdl-color-text--white">send</i><span class="mdl-button__ripple-container"><span class="mdl-ripple is-animating" style="width: 160.391918985787px; height: 160.391918985787px; transform: translate(-50%, -50%) translate(28px, 39px);"></span></span></button>
+<div class="new_post" style="display:none">
+	<form action="#" class="new_blog_form">
+  	  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label textfield-demo">
+        <input class="mdl-textfield__input" type="text" id="post-title-id" />
+        <label class="mdl-textfield__label" for="post-title-id">Title</label>
+      </div>
+
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label textfield-demo">
+        <textarea rows="13" class="mdl-textfield__input" type="text" id="post-description-id"></textarea>
+        <label class="mdl-textfield__label" for="post-description-id">Description</label>
+      </div>
+    </form>
+</div>
+<div class="blog_entries"></div>
