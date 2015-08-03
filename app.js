@@ -147,10 +147,15 @@ Blog.prototype.render = function(parentDomElement){
 	})
 
 	//Now let's had some posts from the service
-	this.blogService.getPosts().then(function(posts){console.log("Got those posts")});
+	this.blogService.getPosts().then(function(posts){self.display_posts(self.blogService)});
 }
 
 Blog.prototype.event_triggered = function(dep){
+	//Todo we should actually look at what kind of event was sent..
+	this.display_posts(dep);
+}
+
+Blog.prototype.display_posts = function(dep){
 	/*
 	* Now lets handle those post information
 	*/
