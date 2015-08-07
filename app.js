@@ -24,7 +24,7 @@ function MenuComponent(loginService){
 }
 MenuComponent.templateUrl = "templates/menu.html";
 
-MenuComponent.prototype.event_triggered = function(dep){
+MenuComponent.prototype.event_triggered = function(event){
 	this.refresh();
 }
 
@@ -147,15 +147,18 @@ Blog.prototype.render = function(parentDomElement){
 	})
 
 	//Now let's had some posts from the service
-	this.blogService.getPosts().then(function(posts){self.display_posts(self.blogService)});
+	this.blogService.getPosts().then(function(posts){
+		self.display_posts(self.blogService)
+	});
 }
 
-Blog.prototype.event_triggered = function(dep){
+Blog.prototype.event_triggered = function(event){
 	//Todo we should actually look at what kind of event was sent..
-	this.display_posts(dep);
+	if (event.changes == "all")
+		this.display_posts(event.service);
 }
 
-Blog.prototype.display_posts = function(dep){
+Blog.prototype.display_posts = function(service){
 	/*
 	* Now lets handle those post information
 	*/
@@ -164,7 +167,7 @@ Blog.prototype.display_posts = function(dep){
 	    entries.removeChild(entries.firstChild);
 	}
 
-	dep.posts.forEach(function(post){
+	service.posts.forEach(function(post){
 		sloth.Component.init(Post, post).then(function(obj){
 			console.log("appending " + post);
 			obj.attach(entries);
@@ -236,7 +239,7 @@ BlogService.prototype.getPosts = function(){
 			b.resolve(json);
 			self.posts = json;
 			self.retrieved = true;
-			self.notify();
+			self.notify({changes: "all"});
 		})
 		.catch(function(){b.reject()});
 	}
@@ -245,7 +248,7 @@ BlogService.prototype.getPosts = function(){
 
 BlogService.prototype.addPost = function(post){
 	this.posts.push(post);
-	this.notify();
+	this.notify({changes: "new", post: post});
 }
 
 sloth.Services.register(new BlogService());
