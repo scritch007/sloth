@@ -160,6 +160,7 @@ sloth.Component.__init = function(tmp){
 				tmp.__isloaded = true;
 				//Check that dom is ready before displaying
 				tmp.__loaded();
+				tmp.__proto__.constructor._comp_loading = false;
 				tmp.__proto__.constructor.__loadlist.forEach(function(tmp2){
 					tmp2.__loaded();
 				});
