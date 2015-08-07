@@ -6,7 +6,7 @@ sloth.Services._services = {};
 sloth.Services.register = function(service){
 	service.__listeners = [];
 	service.notify = function(inObj){
-		if (undefied == inObj){
+		if (undefined == inObj){
 			inObj = {};
 		}
 		inObj.service = service
