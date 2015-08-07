@@ -269,12 +269,16 @@ sloth.Services = function(){};
 sloth.Services._services = {};
 sloth.Services.register = function(service){
 	service.__listeners = [];
-	service.notify = function(){
+	service.notify = function(inObj){
+		if (undefied == inObj){
+			inObj = {};
+		}
+		inObj.service = service
 		this.__listeners.forEach(function(cb){
 			if (undefined === cb.event_triggered){
 				console.error(cb.constructor.name + " doesn't implement the event_triggered callback");
 			}else{
-				cb.event_triggered(service);
+				cb.event_triggered(inObj);
 			}
 		});
 	}
