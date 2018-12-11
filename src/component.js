@@ -69,13 +69,16 @@ sloth.Component.init = function(Cls){
 		parent.appendChild(object);
 		return object;
 	}
-	var a = Promise.defer();
+	var tmpResolver = {}
 	tmp.loaded = function(){
-		a.resolve(tmp);
+		tmpResolver.resolve(tmp);
 	}
+	var p = new Promise(function(resolve){
+		tmpResolver.resolve = resolve;
+	});
 	sloth.Component.__init(tmp);
 	tmp.__load();
-	return a.promise;
+	return p;
 }
 
 
