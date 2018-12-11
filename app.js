@@ -217,33 +217,33 @@ function BlogService(){this.posts = []; this.retrieved = false;};
 
 BlogService.prototype.getPosts = function(){
 	var self = this;
-	var b = Promise.defer();
+	var b = new Promise(function(resolve, reject){
+		if (self.retrieved){
+			resolve(self.posts);
+		}else{
 
-	if (self.retrieved){
-		b.resolve(self.posts);
-	}else{
+			var processStatus = function (response) {
+				// status "0" to handle local files fetching (e.g. Cordova/Phonegap etc.)
+				if (response.status === 200 || response.status === 0) {
+					return response.json()
+				} else {
+					return new Error(response.statusText);
+				}
+			};
 
-		var processStatus = function (response) {
-			// status "0" to handle local files fetching (e.g. Cordova/Phonegap etc.)
-			if (response.status === 200 || response.status === 0) {
-				return response.json()
-			} else {
-				return new Error(response.statusText);
-			}
-		};
-
-		fetch("posts.json")
-		.then(processStatus)
-		// the following code added for example only
-		.then(function(json){
-			b.resolve(json);
-			self.posts = json;
-			self.retrieved = true;
-			self.notify({changes: "all"});
-		})
-		.catch(function(){b.reject()});
-	}
-	return b.promise;
+			fetch("posts.json")
+			.then(processStatus)
+			// the following code added for example only
+			.then(function(json){
+				resolve(json);
+				self.posts = json;
+				self.retrieved = true;
+				self.notify({changes: "all"});
+			})
+			.catch(function(){reject()});
+		}
+	});
+	return b;
 }
 
 BlogService.prototype.addPost = function(post){
